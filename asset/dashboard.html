@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="./css/style.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <input type="text" id="searchInput" placeholder="Search..." class="search-input" />
+        </div>
+        <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
+            &#9776;
+        </button>
+        <div class="navbar-right" id="navbar-right">
+            <button class="nav-button" onclick="window.location.href='./login.html'">Log In</button>
+            <button class="nav-button" onclick="window.location.href='./signup.html'">Sign Up</button>
+            <button class="nav-button profile-button1" onclick="window.location.href='./profile.html'">
+                <img src="./images/profileicon.jpg" alt="Profile Icon" class="profile-icon" />
+                <span class="profile-name">Profile</span>
+            </button>
+        </div>
+    </nav>
+
+    <button id="createPostBtn" class="profile-button">Create Post</button>
+    <br />
+
+    <div class="blog-container" id="blogContainer" style="display: none; margin-left: 3em;">
+        <form id="blogForm" class="profile-form">
+            <div class="form-group">
+                <label for="blogTitle" class="profile-label">Title:</label>
+                <input type="text" id="blogTitle" class="profile-input" required placeholder="Enter blog title">
+            </div>
+
+            <div class="form-group">
+                <label for="blogCategory" class="profile-label">Category:</label>
+                <select id="blogCategory" class="profile-input">
+                    <option value="Technology">Technology</option>
+                    <option value="Lifestyle">Lifestyle</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Food">Food</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="blogContent" class="profile-label">Content:</label>
+                <textarea id="blogContent" class="profile-input" rows="8" required
+                    placeholder="Write your blog content here..."></textarea>
+            </div>
+
+            <button type="submit" id="publishPostBtn" class="profile-button">Publish Post</button>
+        </form>
+    </div>
+    <div id="blog-list"></div>
+
+    <div id="editPostModal" class="modal" style="display:none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 400px; border-radius: 8px; position: relative;">
+            <span id="closeEditModal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            <h2>Edit Blog Post</h2>
+            <form id="editPostForm">
+                <div class="form-group">
+                    <label for="editBlogTitle" class="profile-label">Title:</label>
+                    <input type="text" id="editBlogTitle" class="profile-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="editBlogCategory" class="profile-label">Category:</label>
+                    <select id="editBlogCategory" class="profile-input" required>
+                        <option value="Technology">Technology</option>
+                        <option value="Lifestyle">Lifestyle</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Food">Food</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editBlogContent" class="profile-label">Content:</label>
+                    <textarea id="editBlogContent" class="profile-input" rows="8" required></textarea>
+                </div>
+                <button type="submit" class="profile-button">Save Changes</button>
+                <button type="button" id="cancelEditBtn" class="profile-button" style="background-color: #ccc; color: black; margin-left: 10px;">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const navbarRight = document.getElementById('navbar-right');
+        const blogForm = document.querySelector('.blog-container');
+        const createPostBtn = document.getElementById('createPostBtn');
+        const blogContainer = document.getElementById('blogContainer');
+
+        hamburgerBtn.addEventListener('click', () => {
+            navbarRight.classList.toggle('active');
+            blogForm.classList.toggle('form-expanded');
+        });
+
+        createPostBtn.addEventListener('click', () => {
+            blogContainer.style.display = blogContainer.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="./js/firebase.js"></script>
+    <script type="module" src="./js/app.js"></script>
+
+
+</body>
+
+</html>

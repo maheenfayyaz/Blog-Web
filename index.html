@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blog_App</title>
+    <link rel="stylesheet" href="./asset/css/style.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <input type="text" placeholder="Search..." class="search-input" />
+        </div>
+        <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
+            &#9776;
+        </button>
+        <div class="navbar-right" id="navbar-right">
+            <button class="nav-button" onclick="window.location.href='./asset/login.html'">Log In</button>
+            <button class="nav-button" onclick="window.location.href='./asset/signup.html'">Sign Up</button>
+        </div>
+    </nav>
+    <main>
+        <div id="blog-list"></div>
+    </main>
+    <script>
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const navbarRight = document.getElementById('navbar-right');
+
+        hamburgerBtn.addEventListener('click', () => {
+            navbarRight.classList.toggle('active');
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="./asset/js/firebase.js"></script>
+    <script type="module" src="./asset/js/app.js"></script>
+</body>
+
+</html>
