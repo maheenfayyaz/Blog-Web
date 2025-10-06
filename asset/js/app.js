@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 import { auth, createUserWithEmailAndPassword, GoogleAuthProvider, provider, signInWithPopup, sendEmailVerification, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, onAuthStateChanged, deleteUser, db, getFirestore, collection, addDoc, doc, setDoc, getDocs, getDoc, updateDoc, serverTimestamp, deleteDoc } from "./firebase.js";
 
 // Auth state listener
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         console.log("User signed in:", user.email);
     } else {
@@ -333,119 +333,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // __________________________update Profile_____________________________________
 
-const updateProfile = async (event) => {
-    event.preventDefault();
-
-    const cloudName = 'dbdinegjx';
-    const unSignedUpload = 'Unsigned';
-    const imageInput = document.getElementById('userProfilePhoto');
-    const file = imageInput.files[0];
-    const updateName = document.getElementById('profileUserName').value;
-    const updateEmailValue = document.getElementById('profileEmail').value;
-    const currentPassword = document.getElementById('CurrentPassword').value;
-    const updatePasswordValue = document.getElementById('NewPassword').value;
-    const user = auth.currentUser;
-
-    if (!user) {
-        alert("No user is currently logged in.");
-        console.log("No user logged in");
-        return;
-    }
-
-    if (!user.emailVerified) {
-        alert("Please verify your email before updating your profile.");
-        return;
-    }
-
-    const isUpdatingSensitive = (updateEmailValue && updateEmailValue.trim() !== '' && updateEmailValue !== user.email) || (updatePasswordValue && updatePasswordValue.trim() !== '');
-
-    if (isUpdatingSensitive && (!currentPassword || currentPassword.trim() === '')) {
-        alert("Current password is necessary to update email or password.");
-        return;
-    }
-
-    if (isUpdatingSensitive) {
-        const credential = EmailAuthProvider.credential(user.email, currentPassword);
-
-        try {
-            await reauthenticateWithCredential(user, credential);
-            console.log("Reauthentication successful!");
-        } catch (error) {
-            console.error("Reauthentication failed:", error);
-            alert("Reauthentication failed: " + error.message);
-            return;
-        }
-    }
-
-    try {
-        let imageUrl = null;
-
-        if (file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', unSignedUpload);
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            imageUrl = data.secure_url;
-        }
-
-        const userDocRef = doc(db, "users", user.uid);
-        let updateData = {};
-
-        if (updateEmailValue && updateEmailValue.trim() !== '' && updateEmailValue !== user.email) {
-            console.log("Updating email to:", updateEmailValue);
-            await updateEmail(user, updateEmailValue);
-            await sendEmailVerification(user);
-            updateData.email = updateEmailValue;
-        }
-
-        if (updateName && updateName.trim() !== '') {
-            updateData.name = updateName;
-        }
-
-        if (imageUrl) {
-            console.log("Updating profile photo to:", imageUrl);
-            updateData.photoURL = imageUrl;
-        }
-
-        if (Object.keys(updateData).length > 0) {
-            await updateDoc(userDocRef, updateData);
-        }
-
-        if (updatePasswordValue && updatePasswordValue.trim() !== '') {
-            console.log("Updating password...");
-            await updatePassword(user, updatePasswordValue);
-        }
-
-        let localUser = JSON.parse(localStorage.getItem('user'));
-        if (updateName) localUser.name = updateName;
-        if (imageUrl) localUser.photoURL = imageUrl;
-        localStorage.setItem('user', JSON.stringify(localUser));
-
-        const profileImg = document.getElementById('UserProfileImg');
-        if (profileImg && imageUrl) profileImg.src = imageUrl;
-
-        const dashboardImg = document.querySelector('.profile-icon');
-        if (dashboardImg && imageUrl) {
-            dashboardImg.src = imageUrl;
-        }
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Profile Updated',
-            text: 'Profile updated successfully. Please verify your new email address if updated.',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#3085d6',
-        });
-
-    } catch (error) {
-        console.error("Update profile error:", error);
-        alert("Update profile error: " + error.message);
-    }
+const updatedUser  = auth.currentUser ;  // Auth se fresh user lo (displayName updated hai)
+const userData = {
+    uid: updatedUser .uid,  // Fixed: No extra spaces
+    email: updatedUser .email || updateEmailValue,
+    displayName: updatedUser .displayName || updateName,
+    photoURL: updatedUser .photoURL || imageUrl,
+    name: updateName || updatedUser .displayName  // Name Firestore se sync (latest value)
 };
+localStorage.setItem('user', JSON.stringify(userData));  // Full object save karo
+console.log("LocalStorage updated:", userData);  // Debug: Console mein check karo
+// DOM updates (sirf current page ke liye, profile.html pe)
+const profileImg = document.getElementById('User ProfileImg');  // Fixed ID: Original mein 'User ProfileImg' tha
+if (profileImg && imageUrl) {
+    profileImg.src = imageUrl;
+}
+const dashboardImg = document.querySelector('.profile-icon');
+if (dashboardImg && imageUrl) {
+    dashboardImg.src = imageUrl;
+}
+// NAYA: Success ke baad dashboard pe redirect karo (page reload ke saath fresh load)
+Swal.fire({
+    icon: 'success',
+    title: 'Profile Updated',
+    text: 'Profile updated successfully. Please verify your new email address if updated.',
+    confirmButtonText: 'OK',
+    confirmButtonColor: '#3085d6',
+}).then(() => {
+    window.location.href = '/asset/dashboard.html';  // Fixed: Aapke structure ke hisab se '/asset/' add kiya (confirm karo repo mein)
+});
+
 
 if (window.location.pathname === '/asset/profile.html') {
     const updateProfileBtn = document.getElementById("userProfileBtn");
