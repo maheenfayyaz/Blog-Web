@@ -357,20 +357,27 @@ const updateProfile = async (event) => {
         return;
     }
 
-    if (
-        (!currentPassword || currentPassword.trim() === '') &&
-        (updateName.trim() !== '' || updateEmailValue.trim() !== '' || updatePasswordValue.trim() !== '')
-    ) {
-        alert("Current password is necessary to update any field.");
+    const isUpdatingSensitive = (updateEmailValue && updateEmailValue.trim() !== '' && updateEmailValue !== user.email) || (updatePasswordValue && updatePasswordValue.trim() !== '');
+
+    if (isUpdatingSensitive && (!currentPassword || currentPassword.trim() === '')) {
+        alert("Current password is necessary to update email or password.");
         return;
     }
 
-    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    if (isUpdatingSensitive) {
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+
+        try {
+            await reauthenticateWithCredential(user, credential);
+            console.log("Reauthentication successful!");
+        } catch (error) {
+            console.error("Reauthentication failed:", error);
+            alert("Reauthentication failed: " + error.message);
+            return;
+        }
+    }
 
     try {
-        await reauthenticateWithCredential(user, credential);
-        console.log("Reauthentication successful!");
-
         let imageUrl = null;
 
         if (file) {
