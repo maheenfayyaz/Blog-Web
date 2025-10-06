@@ -24,6 +24,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 import { auth, createUserWithEmailAndPassword, GoogleAuthProvider, provider, signInWithPopup, sendEmailVerification, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, onAuthStateChanged, deleteUser, db, getFirestore, collection, addDoc, doc, setDoc, getDocs, getDoc, updateDoc, serverTimestamp, deleteDoc } from "./firebase.js";
 
+// Auth state listener
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("User signed in:", user.email);
+    } else {
+        console.log("User signed out");
+        localStorage.removeItem('user');
+        if (!['/index.html', '/asset/login.html', '/asset/signup.html', '/asset/email-validation.html'].includes(window.location.pathname)) {
+            window.location.href = '/asset/login.html';
+        }
+    }
+});
+
 // __________________________Sinup-page__________________________________
 
 let signUp = () => {
@@ -336,6 +349,11 @@ const updateProfile = async (event) => {
     if (!user) {
         alert("No user is currently logged in.");
         console.log("No user logged in");
+        return;
+    }
+
+    if (!user.emailVerified) {
+        alert("Please verify your email before updating your profile.");
         return;
     }
 
