@@ -185,13 +185,17 @@ let logIn = () => {
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
             let userName = "";
+            let photoURL = "";
             if (userDocSnap.exists()) {
-                userName = userDocSnap.data().name || "";
+                const data = userDocSnap.data();
+                userName = data.name || "";
+                photoURL = data.photoURL || "";
             }
             localStorage.setItem('user', JSON.stringify({
                 uid: user.uid,
                 email: user.email,
-                name: userName
+                name: userName,
+                photoURL: photoURL
             }));
             window.Swal.fire({
                 title: 'Log-In Successful!',
@@ -254,14 +258,20 @@ let loginGoogle = () => {
                 window.location.href = "/asset/dashboard.html";
             }, 3000);
             try {
-                const userData = {
-                    name: user.displayName || "",
-                    email: user.email || ""
-                };
+                const userDocRef = doc(db, "users", user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                let userName = user.displayName || "";
+                let photoURL = "";
+                if (userDocSnap.exists()) {
+                    const data = userDocSnap.data();
+                    userName = data.name || userName;
+                    photoURL = data.photoURL || "";
+                }
                 localStorage.setItem("user", JSON.stringify({
                     uid: user.uid,
                     email: user.email,
-                    name: user.displayName || ""
+                    name: userName,
+                    photoURL: photoURL
                 }));
                 // For login, user should already exist, no need to setDoc
             } catch (e) {
