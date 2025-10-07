@@ -28,11 +28,14 @@ import { auth, createUserWithEmailAndPassword, GoogleAuthProvider, provider, sig
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         console.log("User signed in:", user.email);
+        if (!user.emailVerified && !['/login.html', '/signup.html', '/email-validation.html'].includes(window.location.pathname)) {
+            window.location.href = '/email-validation.html';
+        }
     } else {
         console.log("User signed out");
         localStorage.removeItem('user');
-        if (!['/index.html', '/asset/login.html', '/asset/signup.html', '/asset/email-validation.html'].includes(window.location.pathname)) {
-            window.location.href = '/asset/login.html';
+        if (!['/index.html', '/login.html', '/signup.html', '/email-validation.html'].includes(window.location.pathname)) {
+            window.location.href = '/login.html';
         }
     }
 });
@@ -75,7 +78,7 @@ let signUp = () => {
                     showConfirmButton: false
                 });
                 setTimeout(() => {
-                    window.location.href = "/asset/email-validation.html";
+                    window.location.href = "/email-validation.html";
                 }, 3000);
                 try {
                     await setDoc(doc(db, "users", user.uid), {
@@ -99,7 +102,7 @@ let signUp = () => {
         alert("Your Password Should Be Identical")
     }
 };
-if (window.location.pathname == "/asset/signup.html") {
+if (window.location.pathname == "/signup.html") {
     let signupForm = document.getElementById("signupForm");
     signupForm.addEventListener("submit", signUp);
 }
@@ -114,7 +117,7 @@ let signupGoogle = () => {
             const user = result.user;
             console.log(user);
             setTimeout(() => {
-                window.location.href = "/asset/email-validation.html";
+                window.location.href = "/email-validation.html";
             }, 3000);
             try {
                 const userData = {
@@ -144,7 +147,7 @@ let signupGoogle = () => {
         });
 };
 
-if (window.location.pathname == "/asset/signup.html") {
+if (window.location.pathname == "/signup.html") {
     let signUpGoogleBtn = document.getElementById("sign-up-gmail-btn");
     signUpGoogleBtn.addEventListener("click", signupGoogle);
 };
@@ -161,12 +164,12 @@ let sendMail = () => {
                 confirmButtonText: 'OK'
             });
             setTimeout(() => {
-                window.location.href = "/asset/dashboard.html";
+                window.location.href = "/dashboard.html";
             }, 3000);
         })
 };
 
-if (window.location.pathname == "/asset/email-validation.html") {
+if (window.location.pathname == "/email-validation.html") {
     let validation = document.getElementById("verify-email");
     validation.addEventListener("click", sendMail)
 };
@@ -218,7 +221,7 @@ let logIn = () => {
                 timerProgressBar: true,
             });
             setTimeout(() => {
-                window.location.href = "/asset/dashboard.html";
+                window.location.href = "/dashboard.html";
             }, 3000);
         })
         .catch((error) => {
@@ -227,7 +230,7 @@ let logIn = () => {
         });
 };
 
-if (window.location.pathname == "/asset/login.html") {
+if (window.location.pathname == "/login.html") {
     let loginForm = document.getElementById("loginForm");
     loginForm.addEventListener("submit", logIn);
 }
@@ -253,7 +256,7 @@ let forgetPassword = () => {
         })
 };
 
-if (window.location.pathname == "/asset/login.html") {
+if (window.location.pathname == "/login.html") {
     let resetpass = document.getElementById("forget-password-btn");
     resetpass.addEventListener("click", forgetPassword);
 };
@@ -268,7 +271,7 @@ let loginGoogle = () => {
             const user = result.user;
             console.log(user);
             setTimeout(() => {
-                window.location.href = "/asset/dashboard.html";
+                window.location.href = "/dashboard.html";
             }, 3000);
             try {
                 const userDocRef = doc(db, "users", user.uid);
@@ -299,7 +302,7 @@ let loginGoogle = () => {
         });
 };
 
-if (window.location.pathname == "/asset/login.html") {
+if (window.location.pathname == "/login.html") {
     let loginGoogleBtn = document.getElementById("login-google-btn");
     loginGoogleBtn.addEventListener("click", loginGoogle);
 };
@@ -307,7 +310,7 @@ if (window.location.pathname == "/asset/login.html") {
 // ___________________________display-profile-name-on-dashboard____________________________
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname === "/asset/dashboard.html") {
+    if (window.location.pathname === "/dashboard.html") {
         const userStr = localStorage.getItem('user');
         console.log("User from localStorage:", userStr);
         if (userStr) {
@@ -423,6 +426,7 @@ const updateProfile = async (event) => {
         let localUser = JSON.parse(localStorage.getItem('user'));
         if (updateName) localUser.name = updateName;
         if (imageUrl) localUser.photoURL = imageUrl;
+        if (updateEmailValue) localUser.email = updateEmailValue;
         localStorage.setItem('user', JSON.stringify(localUser));
 
         const profileImg = document.getElementById('UserProfileImg');
@@ -447,9 +451,22 @@ const updateProfile = async (event) => {
     }
 };
 
-if (window.location.pathname === '/asset/profile.html') {
+if (window.location.pathname === '/profile.html') {
     const updateProfileBtn = document.getElementById("userProfileBtn");
     updateProfileBtn.addEventListener("click", updateProfile);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            document.getElementById('profileUserName').value = user.name || '';
+            document.getElementById('profileEmail').value = user.email || '';
+            const img = document.getElementById('UserProfileImg');
+            if (user.photoURL) {
+                img.src = user.photoURL;
+            }
+        }
+    });
 }
 
 // _______________________log-out____________________________
@@ -481,7 +498,7 @@ let logOut = () => {
             });
         });
 };
-if (window.location.pathname === '/asset/profile.html') {
+if (window.location.pathname === '/profile.html') {
     const logoutBtn = document.getElementById("logoutBtn");
     logoutBtn.addEventListener("click", logOut)
 }
@@ -512,7 +529,7 @@ let deleteProfile = async () => {
     }
 }
 
-if (window.location.pathname == '/asset/profile.html') {
+if (window.location.pathname == '/profile.html') {
     let deleteBtn = document.getElementById('deleteProfileBtn')
     deleteBtn.addEventListener("click", deleteProfile)
 }
@@ -565,7 +582,7 @@ let form = async (event) => {
     }
 };
 
-if (window.location.pathname === '/asset/dashboard.html') {
+if (window.location.pathname === '/dashboard.html') {
     let blogForm = document.getElementById("blogForm");
     blogForm.addEventListener("submit", form);
 
