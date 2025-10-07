@@ -28,14 +28,14 @@ import { auth, createUserWithEmailAndPassword, GoogleAuthProvider, provider, sig
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         console.log("User signed in:", user.email);
-        if (!user.emailVerified && !['/login.html', '/signup.html', '/email-validation.html'].includes(window.location.pathname)) {
-            window.location.href = '/email-validation.html';
+        if (!user.emailVerified && !window.location.pathname.endsWith('login.html') && !window.location.pathname.endsWith('signup.html') && !window.location.pathname.endsWith('email-validation.html')) {
+            window.location.href = 'email-validation.html';
         }
     } else {
         console.log("User signed out");
         localStorage.removeItem('user');
-        if (!['/index.html', '/login.html', '/signup.html', '/email-validation.html'].includes(window.location.pathname)) {
-            window.location.href = '/login.html';
+        if (!window.location.pathname.endsWith('index.html') && !window.location.pathname.endsWith('login.html') && !window.location.pathname.endsWith('signup.html') && !window.location.pathname.endsWith('email-validation.html')) {
+            window.location.href = 'login.html';
         }
     }
 });
@@ -78,7 +78,7 @@ let signUp = () => {
                     showConfirmButton: false
                 });
                 setTimeout(() => {
-                    window.location.href = "/email-validation.html";
+                    window.location.href = "email-validation.html";
                 }, 3000);
                 try {
                     await setDoc(doc(db, "users", user.uid), {
@@ -102,7 +102,7 @@ let signUp = () => {
         alert("Your Password Should Be Identical")
     }
 };
-if (window.location.pathname == "/signup.html") {
+if (window.location.pathname === '/signup.html') {
     let signupForm = document.getElementById("signupForm");
     signupForm.addEventListener("submit", signUp);
 }
@@ -117,7 +117,7 @@ let signupGoogle = () => {
             const user = result.user;
             console.log(user);
             setTimeout(() => {
-                window.location.href = "/email-validation.html";
+                window.location.href === "email-validation.html";
             }, 3000);
             try {
                 const userData = {
@@ -164,12 +164,12 @@ let sendMail = () => {
                 confirmButtonText: 'OK'
             });
             setTimeout(() => {
-                window.location.href = "/dashboard.html";
+                window.location.href = "dashboard.html";
             }, 3000);
         })
 };
 
-if (window.location.pathname == "/email-validation.html") {
+if (window.location.pathname === '/email-validation.html') {
     let validation = document.getElementById("verify-email");
     validation.addEventListener("click", sendMail)
 };
@@ -221,7 +221,7 @@ let logIn = () => {
                 timerProgressBar: true,
             });
             setTimeout(() => {
-                window.location.href = "/dashboard.html";
+                window.location.href = "dashboard.html";
             }, 3000);
         })
         .catch((error) => {
@@ -230,7 +230,7 @@ let logIn = () => {
         });
 };
 
-if (window.location.pathname == "/login.html") {
+if (window.location.pathname === "/login.html") {
     let loginForm = document.getElementById("loginForm");
     loginForm.addEventListener("submit", logIn);
 }
@@ -256,7 +256,7 @@ let forgetPassword = () => {
         })
 };
 
-if (window.location.pathname == "/login.html") {
+if (window.location.pathname === "/login.html") {
     let resetpass = document.getElementById("forget-password-btn");
     resetpass.addEventListener("click", forgetPassword);
 };
@@ -271,7 +271,7 @@ let loginGoogle = () => {
             const user = result.user;
             console.log(user);
             setTimeout(() => {
-                window.location.href = "/dashboard.html";
+                window.location.href = "dashboard.html";
             }, 3000);
             try {
                 const userDocRef = doc(db, "users", user.uid);
@@ -302,7 +302,7 @@ let loginGoogle = () => {
         });
 };
 
-if (window.location.pathname == "/login.html") {
+if (window.location.pathname === "/login.html") {
     let loginGoogleBtn = document.getElementById("login-google-btn");
     loginGoogleBtn.addEventListener("click", loginGoogle);
 };
@@ -310,7 +310,7 @@ if (window.location.pathname == "/login.html") {
 // ___________________________display-profile-name-on-dashboard____________________________
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname === "/dashboard.html") {
+    if (window.location.pathname ==='/dashboard.html') {
         const userStr = localStorage.getItem('user');
         console.log("User from localStorage:", userStr);
         if (userStr) {
@@ -484,7 +484,7 @@ let logOut = () => {
             confirmButtonText: 'OK',
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "/index.html";
+                window.location.href = "index.html";
             }
         });
     })
@@ -520,7 +520,7 @@ let deleteProfile = async () => {
             timerProgressBar: true,
         })
             .then(() => {
-                window.location.href = "/index.html";
+                window.location.href = "index.html";
             })
     }
 
@@ -529,7 +529,7 @@ let deleteProfile = async () => {
     }
 }
 
-if (window.location.pathname == '/profile.html') {
+if (window.location.pathname === '/profile.html') {
     let deleteBtn = document.getElementById('deleteProfileBtn')
     deleteBtn.addEventListener("click", deleteProfile)
 }
@@ -582,7 +582,7 @@ let form = async (event) => {
     }
 };
 
-if (window.location.pathname === '/dashboard.html') {
+if (window.location.pathname.endsWith('dashboard.html')) {
     let blogForm = document.getElementById("blogForm");
     blogForm.addEventListener("submit", form);
 
@@ -590,7 +590,7 @@ if (window.location.pathname === '/dashboard.html') {
         postDisplay();
     });
 }
-if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+if (window.location.pathname ==='/index.html') {
     document.addEventListener('DOMContentLoaded', () => {
         postDisplay();
     })
