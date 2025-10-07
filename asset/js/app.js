@@ -588,7 +588,7 @@ if (window.location.pathname==='/asset/dashboard.html') {
         postDisplay();
     });
 }
-if (window.location.pathname ==='/index.html') {
+if (window.location.pathname ==='/index.html' || window.location.pathname ==='/') {
     document.addEventListener('DOMContentLoaded', () => {
         postDisplay();
     })
