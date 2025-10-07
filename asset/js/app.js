@@ -28,14 +28,14 @@ import { auth, createUserWithEmailAndPassword, GoogleAuthProvider, provider, sig
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         console.log("User signed in:", user.email);
-        if (!user.emailVerified && !window.location.pathname.endsWith('login.html') && !window.location.pathname.endsWith('signup.html') && !window.location.pathname.endsWith('email-validation.html')) {
-            window.location.href = 'email-validation.html';
+        if (!user.emailVerified && window.location.pathname !== '/asset/login.html' && window.location.pathname !== '/asset/signup.html' && window.location.pathname !== '/asset/email-validation.html') {
+            window.location.href = './asset/email-validation.html';
         }
     } else {
         console.log("User signed out");
         localStorage.removeItem('user');
-        if (!window.location.pathname ==='/index.html' && !window.location.pathname ==='asset/login.html' && !window.location.pathname ==='asset/signup.html' && !window.location.pathname==='/asset/email-validation.html') {
-            window.location.href = 'login.html';
+        if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' && window.location.pathname !== '/asset/login.html' && window.location.pathname !== '/asset/signup.html' && window.location.pathname !== '/asset/email-validation.html') {
+            window.location.href = './asset/login.html';
         }
     }
 });
@@ -600,6 +600,7 @@ if (window.location.pathname ==='/index.html') {
 let allPosts = [];
 
 let postDisplay = async (filteredPosts = null) => {
+    console.log("postDisplay called, filteredPosts:", filteredPosts ? filteredPosts.length : "null");
     const blogList = document.getElementById('blog-list');
     blogList.innerHTML = "";
 
