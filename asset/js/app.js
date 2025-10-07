@@ -34,7 +34,7 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         console.log("User signed out");
         localStorage.removeItem('user');
-        if (!window.location.pathname==='/index.html' && !window.location.pathname==='asset/login.html' && !window.location.pathname ==='asset/signup.html' && !window.location.pathname==='/asset/email-validation.html') {
+        if (!window.location.pathname ==='/index.html' && !window.location.pathname ==='asset/login.html' && !window.location.pathname ==='asset/signup.html' && !window.location.pathname==='/asset/email-validation.html') {
             window.location.href = 'login.html';
         }
     }
@@ -302,7 +302,7 @@ let loginGoogle = () => {
         });
 };
 
-if (window.location.pathname === "/login.html") {
+if (window.location.pathname === "/asset/login.html") {
     let loginGoogleBtn = document.getElementById("login-google-btn");
     loginGoogleBtn.addEventListener("click", loginGoogle);
 };
@@ -482,10 +482,8 @@ let logOut = () => {
             title: 'Logged Out',
             text: 'Your account is successfully logged out.',
             confirmButtonText: 'OK',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "index.html";
-            }
+        }).then (() => {
+                window.location.href = "/index.html";
         });
     })
         .catch((error) => {
