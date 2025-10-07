@@ -34,7 +34,7 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         console.log("User signed out");
         localStorage.removeItem('user');
-        if (!window.location.pathname.endsWith('index.html') && !window.location.pathname.endsWith('login.html') && !window.location.pathname.endsWith('signup.html') && !window.location.pathname.endsWith('email-validation.html')) {
+        if (!window.location.pathname==='/index.html' && !window.location.pathname==='asset/login.html' && !window.location.pathname ==='asset/signup.html' && !window.location.pathname==='/asset/email-validation.html') {
             window.location.href = 'login.html';
         }
     }
@@ -102,7 +102,7 @@ let signUp = () => {
         alert("Your Password Should Be Identical")
     }
 };
-if (window.location.pathname === '/signup.html') {
+if (window.location.pathname === '/asset/signup.html') {
     let signupForm = document.getElementById("signupForm");
     signupForm.addEventListener("submit", signUp);
 }
@@ -117,7 +117,7 @@ let signupGoogle = () => {
             const user = result.user;
             console.log(user);
             setTimeout(() => {
-                window.location.href === "email-validation.html";
+                window.location.href = "email-validation.html";
             }, 3000);
             try {
                 const userData = {
@@ -147,7 +147,7 @@ let signupGoogle = () => {
         });
 };
 
-if (window.location.pathname == "/signup.html") {
+if (window.location.pathname == "/asset/signup.html") {
     let signUpGoogleBtn = document.getElementById("sign-up-gmail-btn");
     signUpGoogleBtn.addEventListener("click", signupGoogle);
 };
@@ -169,7 +169,7 @@ let sendMail = () => {
         })
 };
 
-if (window.location.pathname === '/email-validation.html') {
+if (window.location.pathname === '/asset/email-validation.html') {
     let validation = document.getElementById("verify-email");
     validation.addEventListener("click", sendMail)
 };
@@ -230,7 +230,7 @@ let logIn = () => {
         });
 };
 
-if (window.location.pathname === "/login.html") {
+if (window.location.pathname === "/asset/login.html") {
     let loginForm = document.getElementById("loginForm");
     loginForm.addEventListener("submit", logIn);
 }
@@ -256,7 +256,7 @@ let forgetPassword = () => {
         })
 };
 
-if (window.location.pathname === "/login.html") {
+if (window.location.pathname === "/asset/login.html") {
     let resetpass = document.getElementById("forget-password-btn");
     resetpass.addEventListener("click", forgetPassword);
 };
@@ -310,7 +310,7 @@ if (window.location.pathname === "/login.html") {
 // ___________________________display-profile-name-on-dashboard____________________________
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname ==='/dashboard.html') {
+    if (window.location.pathname ==='/asset/dashboard.html') {
         const userStr = localStorage.getItem('user');
         console.log("User from localStorage:", userStr);
         if (userStr) {
@@ -451,7 +451,7 @@ const updateProfile = async (event) => {
     }
 };
 
-if (window.location.pathname === '/profile.html') {
+if (window.location.pathname === '/asset/profile.html') {
     const updateProfileBtn = document.getElementById("userProfileBtn");
     updateProfileBtn.addEventListener("click", updateProfile);
 
@@ -498,7 +498,7 @@ let logOut = () => {
             });
         });
 };
-if (window.location.pathname === '/profile.html') {
+if (window.location.pathname === '/asset/profile.html') {
     const logoutBtn = document.getElementById("logoutBtn");
     logoutBtn.addEventListener("click", logOut)
 }
@@ -529,7 +529,7 @@ let deleteProfile = async () => {
     }
 }
 
-if (window.location.pathname === '/profile.html') {
+if (window.location.pathname === "/asset/profile.html") {
     let deleteBtn = document.getElementById('deleteProfileBtn')
     deleteBtn.addEventListener("click", deleteProfile)
 }
@@ -582,7 +582,7 @@ let form = async (event) => {
     }
 };
 
-if (window.location.pathname.endsWith('dashboard.html')) {
+if (window.location.pathname==='/asset/dashboard.html') {
     let blogForm = document.getElementById("blogForm");
     blogForm.addEventListener("submit", form);
 
