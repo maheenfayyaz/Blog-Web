@@ -25,20 +25,34 @@ document.addEventListener('DOMContentLoaded', () => {
 import { auth, createUserWithEmailAndPassword, GoogleAuthProvider, provider, signInWithPopup, sendEmailVerification, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, onAuthStateChanged, deleteUser, db, getFirestore, collection, addDoc, doc, setDoc, getDocs, getDoc, updateDoc, serverTimestamp, deleteDoc } from "./firebase.js";
 
 // Auth state listener
-onAuthStateChanged(auth, async (user) => {
+// Auth state listener
+onAuthStateChanged(auth, (user) => {
+    const path = window.location.pathname;
+
     if (user) {
-        console.log("User signed in:", user.email);
-        if (!user.emailVerified && window.location.pathname !== '/asset/login.html' && window.location.pathname !== '/asset/signup.html' && window.location.pathname !== '/asset/email-validation.html') {
-            window.location.href = './asset/email-validation.html';
+        let existing = JSON.parse(localStorage.getItem('user')) || {};
+        const userInfo = {
+            uid: user.uid,
+            name: existing.name || user.displayName || "",
+            photoURL: existing.photoURL || user.photoURL || "",
+            email: user.email
+        };
+        localStorage.setItem('user', JSON.stringify(userInfo));
+
+        // ✅ Redirect to dashboard only from login or signup pages
+        if (path === '/index.html' || path === '/signup.html' || path === '/') {
+            window.location.href = '/asset/dashboard.html';
         }
     } else {
-        console.log("User signed out");
-        localStorage.removeItem('user');
-        if (window.location.pathname !== '/' && window.location.pathname !== '/index.html' && window.location.pathname !== '/asset/login.html' && window.location.pathname !== '/asset/signup.html' && window.location.pathname !== '/asset/email-validation.html') {
-            window.location.href = './asset/login.html';
+        // 🔐 If not logged in, redirect from protected pages
+        if (window.deleting) return;
+        if (path === '/asset/dashboard.html' || path === '/asset/profile.html') {
+            window.location.href = '/index.html';
         }
     }
 });
+
+
 
 // __________________________Sinup-page__________________________________
 
@@ -59,6 +73,10 @@ let signUp = () => {
     console.log(userData);
 
     if (emailRegex.test(email) && passwordRegex.test(password)) {
+        if (password !== confirmPassword) {
+            alert("Your Password Should Be Identical");
+            return;
+        }
         console.log("test");
         createUserWithEmailAndPassword(auth, email, password)
             .then(async (userCredential) => {
@@ -69,17 +87,6 @@ let signUp = () => {
                     email: user.email,
                     name: name
                 }));
-                window.Swal.fire({
-                    icon: 'success',
-                    title: 'Account Created',
-                    text: 'Your Account Is Created Successfully',
-                    timer: 8000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
-                });
-                setTimeout(() => {
-                    window.location.href = "email-validation.html";
-                }, 3000);
                 try {
                     await setDoc(doc(db, "users", user.uid), {
                         ...userData,
@@ -89,6 +96,17 @@ let signUp = () => {
                 } catch (error) {
                     console.error("Error adding document: ", error);
                 }
+                window.Swal.fire({
+                    icon: 'success',
+                    title: 'Account Created',
+                    text: 'Your Account Is Created Successfully',
+                    timer: 10000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+                setTimeout(() => {
+                    window.location.href = "email-validation.html";
+                }, 3000);
             })
             .catch((error) => {
                 alert("The Error Is: " + error.code);
@@ -97,9 +115,6 @@ let signUp = () => {
     }
     else {
         alert("Invalid email or Password");
-    }
-    if (password !== confirmPassword) {
-        alert("Your Password Should Be Identical")
     }
 };
 if (window.location.pathname === '/asset/signup.html') {
@@ -116,18 +131,17 @@ let signupGoogle = () => {
             const token = credential.accessToken;
             const user = result.user;
             console.log(user);
-            setTimeout(() => {
-                window.location.href = "email-validation.html";
-            }, 3000);
             try {
                 const userData = {
                     name: user.displayName || "",
-                    email: user.email || ""
+                    email: user.email || "",
+                    photoURL: user.photoURL || ""
                 };
                 localStorage.setItem("user", JSON.stringify({
                     uid: user.uid,
                     email: user.email,
-                    name: user.displayName || ""
+                    name: user.displayName || "",
+                    photoURL: user.photoURL || ""
                 }));
                 await setDoc(doc(db, "users", user.uid), {
                     ...userData,
@@ -137,6 +151,9 @@ let signupGoogle = () => {
             } catch (e) {
                 console.error("Error adding document: ", e);
             }
+            setTimeout(() => {
+                window.location.href = "email-validation.html";
+            }, 3000);
 
         })
         .catch((error) => {
@@ -207,6 +224,7 @@ let logIn = () => {
                 userName = data.name || "";
                 photoURL = data.photoURL || "";
             }
+            console.log("Setting localStorage with photoURL:", photoURL);
             localStorage.setItem('user', JSON.stringify({
                 uid: user.uid,
                 email: user.email,
@@ -270,13 +288,10 @@ let loginGoogle = () => {
             const token = credential.accessToken;
             const user = result.user;
             console.log(user);
-            setTimeout(() => {
-                window.location.href = "dashboard.html";
-            }, 3000);
             try {
                 const userDocRef = doc(db, "users", user.uid);
                 const userDocSnap = await getDoc(userDocRef);
-                let userName = user.displayName || "";
+                let userName = user.name || "";
                 let photoURL = "";
                 if (userDocSnap.exists()) {
                     const data = userDocSnap.data();
@@ -290,8 +305,14 @@ let loginGoogle = () => {
                     photoURL: photoURL
                 }));
                 // For login, user should already exist, no need to setDoc
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 3000);
             } catch (e) {
                 console.error("Error: ", e);
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 3000);
             }
 
         })
@@ -317,8 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(userStr);
             const profileNameSpan = document.getElementsByClassName('profile-name');
             console.log("Profile name span element:", profileNameSpan);
-            if (profileNameSpan.length > 0) {
-                profileNameSpan[0].textContent = user.name ? user.name : "Profile";
+            if (profileNameSpan ) {
+                profileNameSpan[0].textContent = user.name || "Profile";
                 console.log("Profile name to:", profileNameSpan[0].textContent);
             }
             console.log("User photoURL:", user.photoURL);
@@ -329,6 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 console.log("Profile image element not found or photoURL missing");
             }
+        }else {
+            console.log("User not found in localStorage");
         }
     }
 });
@@ -415,7 +438,9 @@ const updateProfile = async (event) => {
         }
 
         if (Object.keys(updateData).length > 0) {
+            console.log("Updating Firestore with:", updateData);
             await updateDoc(userDocRef, updateData);
+            console.log("Firestore updated successfully");
         }
 
         if (updatePasswordValue && updatePasswordValue.trim() !== '') {
@@ -471,30 +496,27 @@ if (window.location.pathname === '/asset/profile.html') {
 
 // _______________________log-out____________________________
 
-let logOut = () => {
+let logOut = (event) => {
     event.preventDefault();
-    signOut(auth).then(() => {
-        localStorage.removeItem('user');
-        console.log("User logged out.");
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Logged Out',
-            text: 'Your account is successfully logged out.',
-            confirmButtonText: 'OK',
-        }).then (() => {
-                window.location.href = "/index.html";
-        });
-    })
-        .catch((error) => {
+    Swal.fire({
+        icon: 'success',
+        title: 'Logged Out',
+        text: 'Your account is successfully logged out.',
+        confirmButtonText: 'OK'
+    }).then(() => {
+        signOut(auth).then(() => {
+            localStorage.removeItem('user');
+            console.log("User logged out.");
+        }).catch((error) => {
             console.error("Logout error:", error);
             Swal.fire({
                 icon: 'error',
                 title: 'Logout Failed',
-                text: 'Error: ' + error.code,
+                text: error.message,
                 confirmButtonText: 'OK'
             });
         });
+    });
 };
 if (window.location.pathname === '/asset/profile.html') {
     const logoutBtn = document.getElementById("logoutBtn");
@@ -507,23 +529,37 @@ let deleteProfile = async () => {
     event.preventDefault();
     let user = auth.currentUser;
     let userId = auth.currentUser.uid;
-    try {
-        await deleteUser(user);
-        await deleteDoc(doc(db, "users", userId));
-        Swal.fire({
-            icon: "success",
-            title: "Account Deleted",
-            text: 'Your account has been successfully deleted.',
-            timer: 8000,
-            timerProgressBar: true,
-        })
-            .then(() => {
-                window.location.href = "index.html";
-            })
-    }
-
-    catch (error) {
-        alert("Delete button dose not work" + error.message)
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    });
+    if (result.isConfirmed) {
+        window.deleting = true;
+        try {
+            await deleteDoc(doc(db, "users", userId));
+            await deleteUser(user);
+            await Swal.fire({
+                icon: "success",
+                title: "Account Deleted",
+                text: 'Your account has been successfully deleted.',
+                confirmButtonText: 'OK'
+            });
+            window.deleting = false;
+            window.location.href = "/index.html";
+        } catch (error) {
+            window.deleting = false;
+            Swal.fire({
+                icon: 'error',
+                title: 'Delete Failed',
+                text: error.message,
+                confirmButtonText: 'OK'
+            });
+        }
     }
 }
 
