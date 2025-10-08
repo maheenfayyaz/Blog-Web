@@ -458,6 +458,8 @@ const updateProfile = async (event) => {
             text: 'Profile updated successfully. Please verify your new email address if updated.',
             confirmButtonText: 'OK',
             confirmButtonColor: '#3085d6',
+        }).then(() => {
+            window.location.href = "dashboard.html";
         });
 
     } catch (error) {
@@ -801,11 +803,30 @@ if (searchInput) {
             postDisplay(allPosts);
             return;
         }
-        const filtered = allPosts.filter(post => 
-            post.data.category.toLowerCase().includes(query) || 
+        const filtered = allPosts.filter(post =>
+            post.data.category.toLowerCase().includes(query) ||
             post.data.title.toLowerCase().includes(query)
         );
         postDisplay(filtered);
     });
 };
+
+// Fix for dashboard display on navigation back
+window.addEventListener('pageshow', () => {
+    if (window.location.pathname === '/asset/dashboard.html') {
+        postDisplay();
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            const profileNameSpan = document.getElementsByClassName('profile-name');
+            if (profileNameSpan && profileNameSpan[0]) {
+                profileNameSpan[0].textContent = user.name || "Profile";
+            }
+            const dashboardImg = document.querySelector('.profile-icon');
+            if (dashboardImg && user.photoURL) {
+                dashboardImg.src = user.photoURL;
+            }
+        }
+    }
+});
 
