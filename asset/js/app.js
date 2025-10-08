@@ -383,25 +383,7 @@ const updateProfile = async (event) => {
         return;
     }
 
-    const isUpdatingSensitive = (updateEmailValue && updateEmailValue.trim() !== '' && updateEmailValue !== user.email) || (updatePasswordValue && updatePasswordValue.trim() !== '');
-
-    if (isUpdatingSensitive && (!currentPassword || currentPassword.trim() === '')) {
-        alert("Current password is necessary to update email or password.");
-        return;
-    }
-
-    if (isUpdatingSensitive) {
-        const credential = EmailAuthProvider.credential(user.email, currentPassword);
-
-        try {
-            await reauthenticateWithCredential(user, credential);
-            console.log("Reauthentication successful!");
-        } catch (error) {
-            console.error("Reauthentication failed:", error);
-            alert("Reauthentication failed: " + error.message);
-            return;
-        }
-    }
+    // Removed reauthentication as it may cause logout
 
     try {
         let imageUrl = null;
