@@ -40,14 +40,14 @@ onAuthStateChanged(auth, (user) => {
         localStorage.setItem('user', JSON.stringify(userInfo));
 
         // ✅ Redirect to dashboard only from login or signup pages
-        if (path === '/index.html' || path === '/signup.html' || path === '/') {
-            window.location.href = '/asset/dashboard.html';
+        if (path.includes('index.html') || path.includes('signup.html') || path === '/' || path.endsWith('/')) {
+            window.location.href = 'asset/dashboard.html';
         }
     } else {
         // 🔐 If not logged in, redirect from protected pages
         if (window.deleting) return;
-        if (path === '/asset/dashboard.html' || path === '/asset/profile.html') {
-            window.location.href = '/index.html';
+        if (path.includes('dashboard.html') || path.includes('profile.html')) {
+            window.location.href = '../index.html';
         }
     }
 });
