@@ -39,8 +39,8 @@ onAuthStateChanged(auth, (user) => {
         };
         localStorage.setItem('user', JSON.stringify(userInfo));
 
-        // ✅ Redirect to dashboard only from login or signup pages
-        if (path.includes('index.html') || path.includes('signup.html') || path === '/' || path.endsWith('/')) {
+        // ✅ Redirect to dashboard only from index page
+        if (path.includes('index.html') || path === '/' || path.endsWith('/')) {
             window.location.href = 'asset/dashboard.html';
         }
     } else {
@@ -95,6 +95,7 @@ let signUp = () => {
                     console.log("Document written with ID: ", user.uid);
                 } catch (error) {
                     console.error("Error adding document: ", error);
+                    alert("Error saving user data: " + error.message);
                 }
                 window.Swal.fire({
                     icon: 'success',
@@ -152,7 +153,11 @@ let signupGoogle = () => {
                 console.error("Error adding document: ", e);
             }
             setTimeout(() => {
-                window.location.href = "email-validation.html";
+                if (user.emailVerified) {
+                    window.location.href = "dashboard.html";
+                } else {
+                    window.location.href = "email-validation.html";
+                }
             }, 3000);
 
         })
@@ -184,6 +189,9 @@ let sendMail = () => {
                 window.location.href = "dashboard.html";
             }, 3000);
         })
+        .catch((error) => {
+            alert("Error sending verification email: " + error.message);
+        });
 };
 
 if (window.location.pathname === '/asset/email-validation.html') {
